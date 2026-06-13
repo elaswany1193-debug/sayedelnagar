@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -537,19 +538,14 @@ async function loadFromSheets() {
       resClients.json(), resDel.json(), resStock.json(), resArc.json()
     ]);
 
-    // ── عملاء ──
+    // ── عملاء ── (دايماً من الشيت + احتفظ بالـ vstatus المحلي)
     if(dataClients.ok && dataClients.clients) {
       RAW_CLIENTS = dataClients.clients;
       const localClients = JSON.parse(localStorage.getItem('cd_clients') || '[]');
-      if(localClients.length && localClients[0]?.id !== undefined) {
-        CLIENTS = RAW_CLIENTS.map(c => {
-          const local = localClients.find(l => l.n === c.n && l.r === c.r);
-          return local ? { ...c, vstatus: local.vstatus, id: c.id } : { ...c, vstatus: null };
-        });
-      } else {
-        CLIENTS = RAW_CLIENTS.map(c => ({ ...c, vstatus: null }));
-      }
-      CLIENTS.forEach((c, idx) => c.id = idx);
+      CLIENTS = RAW_CLIENTS.map((c, idx) => {
+        const local = localClients.find(l => l.n === c.n && l.r === c.r);
+        return { ...c, id: idx, vstatus: local ? local.vstatus : null };
+      });
       localStorage.setItem('cd_clients', JSON.stringify(CLIENTS));
     } else throw new Error(dataClients.error || 'فشل تحميل العملاء');
 
